@@ -18,9 +18,9 @@ int main() {
 	set_fname();
 	int key, first = 0;
 	int r = 0, g = 255, b = 0;
-	cv::VideoWriter writer(video_filename, CV_FOURCC('X', 'V', 'I', 'D'), FPS, cv::Size(CAM_W, CAM_H));
+	cv::VideoWriter writer;
 	//cv::VideoWriter writer(VIDEO_NAME, -1, FPS, cv::Size(CAM_W, CAM_H));
-	std::ofstream ofs(main_filename);
+	std::ofstream ofs;
 	cv::VideoCapture cap;
 	//////カメラの準備///////
 	cap.open(CAP_NUM);
@@ -52,7 +52,7 @@ int main() {
 	//imshow("back", back);
 	cv::namedWindow(WIN_NAME, CV_WINDOW_AUTOSIZE);
 	cv::createTrackbar("thresh", WIN_NAME, &THRE, 255, NULL);
-	//std::thread mbed(serial_task);//mbedからの通信受付スレッド
+	std::thread mbed(serial_task);//mbedからの通信受付スレッド
 	int64 start_t = cv::getTickCount();
 	while (1) {
 		if (check_mode() == RELEASE_MODE && first == 0) {
@@ -89,12 +89,11 @@ int main() {
 		cv::imshow("frame", frame);
 		key = cv::waitKey(1);
 		//sキーを押されたら背景画像を更新する
-		if (key == 0x073) {
-			cvtColor(img, back, CV_RGB2GRAY);
-			imshow("back", back);
-		}
-		else if (key == 0x072) {
-			//rキーが押されたら設定モード
+	if (key == 0x072) {
+			//rキーが押されたら録画モード
+		writer = cv::VideoWriter(video_filename, CV_FOURCC('X', 'V', 'I', 'D'), FPS, cv::Size(CAM_W, CAM_H));
+		//cv::VideoWriter writer(VIDEO_NAME, -1, FPS, cv::Size(CAM_W, CAM_H));
+		ofs = std::ofstream(main_filename);
 			start_time = timeGetTime();
 			mode_releace();
 		}
@@ -128,7 +127,7 @@ int main() {
 	}
 	end_device_rx28();
 	change_flag();
-	//mbed.join();
+	mbed.join();
 	//終了処理
 	ofs.close();
 	writer.release();
