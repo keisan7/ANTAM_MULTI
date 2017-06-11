@@ -102,7 +102,7 @@ int main() {
 			mode_test();
 			first = 0;
 		}
-		else if (key > 0) {
+		else if (key == 0x1b) {
 			//それ以外のキーを押されたらループを抜ける
 			m_th.join();
 			break;
