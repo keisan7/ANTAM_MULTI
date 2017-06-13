@@ -2,6 +2,7 @@ extern int pos_x, pos_y;
 extern int mode;
 extern int THRE;
 extern bool mbed_flag;
+extern bool calib_m;
 extern int start_t;
 extern DWORD start_time;
 extern char mouse_filename[];
@@ -31,6 +32,7 @@ bool check_flag();
 void change_flag();
 void mode_releace();
 int check_mode();
+bool calib_motor(int ch);
 
 //ƒtƒ@ƒCƒ‹–¼
 void set_fname();

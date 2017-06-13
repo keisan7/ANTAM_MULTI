@@ -9,6 +9,8 @@ bool mbed_end_flag = false;
 int mode = TEST_MODE;
 std::mutex mbed_mtx;
 std::mutex mode_mtx;
+std::mutex calib_mtx;
+
 //データが競合するのを防ぐため排他制御でフラグを取り扱う
 //終了フラグを立ち上げる変数
 void change_flag() {
@@ -35,4 +37,23 @@ int check_mode() {
 	n = mode;
 	mode_mtx.unlock();
 	return n;
+}
+
+void change_calib() {
+
+}
+
+bool calib_motor(int ch) {
+	bool m;
+	if (ch == 0) {
+		calib_mtx.lock();
+		calib_m = !calib_m;
+		calib_mtx.unlock();
+	}
+	else {
+		calib_mtx.lock();
+		m = calib_m;
+		calib_mtx.unlock();
+	}
+	return m;
 }

@@ -2,6 +2,9 @@
 #include "sys.h"
 #include "sub_method.h"
 #pragma comment(lib,"dynamixel.lib")
+
+bool calib_m = false;
+
 void init_Device() {
 	if (dxl_initialize(PORT_NUM, BORD_NUM) == 0) {
 		//ポートが見つからなかった場合の処理
@@ -21,9 +24,11 @@ void motor_task() {
 		std::cout << "Dynamixel 再接続" << std::endl;
 		init_Device();
 	}
-	calc_speed(&x, &y, &st);
+	if (calib_motor(1)) {
+		calc_speed(&x, &y, &st);
+		move_rx28(x, y, st);
+	}
 	t = cv::getTickCount();
-	move_rx28(x, y, st);
 }
 //モータへ指令値を送る関数
 void move_rx28(int speed_x, int speed_y, int st) {

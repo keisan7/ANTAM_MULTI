@@ -31,6 +31,7 @@ int main() {
 	int key, first = 0;
 	int r = 0, g = 255, b = 0;
 	bool calib = false;
+	bool calib_m = false;
 	cv::VideoWriter writer;
 	//cv::VideoWriter writer(VIDEO_NAME, -1, FPS, cv::Size(CAM_W, CAM_H));
 	std::ofstream ofs;
@@ -84,8 +85,11 @@ int main() {
 		//二値化画像の作成と重心の取得
 		img_processing_main(&img, &back, &dst);
 		t4 = cv::getTickCount();
+
 		//画像処理が終わったら別スレッドでモータ制御開始
+		//calib_mがtrueならモータを動かさない
 		std::thread m_th(motor_task);
+
 		//二値化画像の出力
 		cv::imshow(WIN_NAME, dst);
 
@@ -93,6 +97,12 @@ int main() {
 		if (calib) {
 			cv::line(frame, cv::Point(0, CAM_H / 2), cv::Point(CAM_W, CAM_H / 2), cv::Scalar(0, 0, 255), 1, CV_AA);
 			cv::line(frame, cv::Point(CAM_W / 2, 0), cv::Point(CAM_W / 2, CAM_H), cv::Scalar(0, 0, 255), 1, CV_AA);
+			putText(frame, "Calibration Mode", cv::Point(10, 40), cv::FONT_HERSHEY_PLAIN, 1.0, cvScalar(255, 0, 0), 2, CV_AA);
+			if(calib_motor(1))
+				putText(frame, "Motor OFF", cv::Point(10, 60), cv::FONT_HERSHEY_PLAIN, 1.0, cvScalar(255, 0, 0), 2, CV_AA);
+			else
+				putText(frame, "Motor ON", cv::Point(10, 60), cv::FONT_HERSHEY_PLAIN, 1.0, cvScalar(255, 0, 0), 2, CV_AA);
+
 		}
 
 		cv::imshow("frame", frame);
@@ -109,13 +119,20 @@ int main() {
 			mode_releace();
 		}
 		else if (key == 0x63){
+			//cキーを押されたらキャリブレーションモード
 				calib = !calib;
+		}
+		else if (key == 0x6d) {
+			//キャリブレーションモード中にmキーが押されたらモータを動かさない
+			if (calib)
+				calib_motor(0);
 		}
 		else if (key == 0x1b) {
 			//escキーを押されたらループを抜ける
 			m_th.join();
 			break;
 		}
+
 		//モータ制御スレッドの終了を待つ
 		m_th.join();
 		t5 = cv::getTickCount();
@@ -127,6 +144,7 @@ int main() {
 				<< (double)((t5 - t4) * 1000 / cv::getTickFrequency()) << ","
 				<< end_t << std::endl;
 		}
+		//debug
 		if (timer_flag) {
 			//時間を越えたら終了
 			if (time_log > (REC_HOUR * 3600 + REC_MINUTE * 60) * 1000)
