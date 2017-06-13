@@ -29,11 +29,6 @@ void mode_releace() {
 	mode = RELEASE_MODE;
 	mode_mtx.unlock();
 }
-void mode_test() {
-	mode_mtx.lock();
-	mode = TEST_MODE;
-	mode_mtx.unlock();
-}
 int check_mode() {
 	int n;
 	mode_mtx.lock();

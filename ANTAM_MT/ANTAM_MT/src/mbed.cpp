@@ -17,7 +17,6 @@ void serial_setup() {
 	mbed = CreateFile(_T(COM_NUM), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (mbed == INVALID_HANDLE_VALUE) {
 		std::cout << "mbed PORT COULD NOT OPEN" << std::endl;
-		exit(0);
 	}
 	else {
 		std::cout << "mbed PORT OPEN" << std::endl;
@@ -154,10 +153,7 @@ void recive_value(int *x, int *y, int *move_x, int *move_y) {
 		t2 = timeGetTime() - start_time;
 		if ((t2 - t1) >= 8) {
 			if (check_mode() == RELEASE_MODE) {
-				if (rec) {
-					rec = true;
-					mouse = std::ofstream(mouse_filename);
-				}
+
 				//csvファイルへの書き出し
 				std::cout << "REC:" << (int64)t2 << ":" << *move_x << "," << *move_y << std::endl;
 				mouse << (int64)t2 << "," << *move_x << "," << *move_y << std::endl;
@@ -181,6 +177,10 @@ void serial_task() {
 	mouse << "time[ms]" << "," << "x" << "," << "y" << std::endl;
 	serial_setup();
 	while (1) {
+		if (check_mode() == RELEASE_MODE && !rec) {
+			rec = true;
+			mouse = std::ofstream(mouse_filename);
+		}
 		recive_value(&x, &y, &move_x, &move_y);
 		if (check_flag())
 			break;

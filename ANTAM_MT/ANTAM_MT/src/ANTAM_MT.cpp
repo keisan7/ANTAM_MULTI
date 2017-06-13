@@ -16,19 +16,19 @@
 
 int main() {
 	set_fname();
-	int key, first = 0;
-	int r = 0, g = 255, b = 0;
-	cv::VideoWriter writer;
-	//cv::VideoWriter writer(VIDEO_NAME, -1, FPS, cv::Size(CAM_W, CAM_H));
-	std::ofstream ofs;
-	cv::VideoCapture cap;
 	//////カメラの準備///////
+	cv::VideoCapture cap;
 	cap.open(CAP_NUM);
 	if (!cap.isOpened())
 		return(1);
 	cap.set(CV_CAP_PROP_FRAME_WIDTH, CAM_W);
 	cap.set(CV_CAP_PROP_FRAME_HEIGHT, CAM_H);
 	cap.set(CV_CAP_PROP_FPS, FPS);
+	int key, first = 0;
+	int r = 0, g = 255, b = 0;
+	cv::VideoWriter writer;
+	//cv::VideoWriter writer(VIDEO_NAME, -1, FPS, cv::Size(CAM_W, CAM_H));
+	std::ofstream ofs;
 	CvFont dfont;
 	char message[64] = "";
 	//フォントの初期化
@@ -44,8 +44,7 @@ int main() {
 	init_Device();
 	cap.read(frame);
 	/////ここまでカメラに関する宣言////
-	ofs << "time_log" << "," << "キャプチャ時間" << "," << "書き出し処理時間" << "," << "画像処理時間" << ","
-		<< "モータ制御開始から終了" << "," << "1ループ" << std::endl;
+
 	//背景画像の準備
 	//frame.copyTo(img);
 	//cv::cvtColor(img, back, cv::COLOR_RGB2GRAY);
@@ -83,24 +82,20 @@ int main() {
 		img_processing_main(&img, &back, &dst);
 		t4 = cv::getTickCount();
 		//画像処理が終わったら別スレッドでモータ制御開始
-		std::thread m_th(motor_task);
-		//二値化画像の出力
+		std::thread m_th(motor_task);			//二値化画像の出力
 		cv::imshow(WIN_NAME, dst);
 		cv::imshow("frame", frame);
 		key = cv::waitKey(1);
 		//sキーを押されたら背景画像を更新する
-	if (key == 0x072) {
+		if (key == 0x072) {
 			//rキーが押されたら録画モード
-		writer = cv::VideoWriter(video_filename, CV_FOURCC('X', 'V', 'I', 'D'), FPS, cv::Size(CAM_W, CAM_H));
-		//cv::VideoWriter writer(VIDEO_NAME, -1, FPS, cv::Size(CAM_W, CAM_H));
-		ofs = std::ofstream(main_filename);
+			writer = cv::VideoWriter(video_filename, CV_FOURCC('X', 'V', 'I', 'D'), FPS, cv::Size(CAM_W, CAM_H));
+			//cv::VideoWriter writer(VIDEO_NAME, -1, FPS, cv::Size(CAM_W, CAM_H));
+			ofs = std::ofstream(main_filename);
+			ofs << "time_log" << "," << "キャプチャ時間" << "," << "書き出し処理時間" << "," << "画像処理時間" << ","
+			<< "モータ制御開始から終了" << "," << "1ループ" << std::endl;
 			start_time = timeGetTime();
 			mode_releace();
-		}
-		else if (key == 0x074) {
-			//tキーが押されたらテストモード
-			mode_test();
-			first = 0;
 		}
 		else if (key == 0x1b) {
 			//それ以外のキーを押されたらループを抜ける

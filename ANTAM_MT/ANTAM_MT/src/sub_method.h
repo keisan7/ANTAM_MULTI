@@ -30,7 +30,6 @@ void serial_exit();
 bool check_flag();
 void change_flag();
 void mode_releace();
-void mode_test();
 int check_mode();
 
 //ƒtƒ@ƒCƒ‹–¼
