@@ -121,6 +121,10 @@ int main() {
 		else if (key == 0x63){
 			//cキーを押されたらキャリブレーションモード
 				calib = !calib;
+				if(calib)
+					if (calib_motor(1)) {
+						calib_motor(0);
+					}
 		}
 		else if (key == 0x6d) {
 			//キャリブレーションモード中にmキーが押されたらモータを動かさない
