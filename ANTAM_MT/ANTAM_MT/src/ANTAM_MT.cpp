@@ -31,7 +31,7 @@ int main() {
 	int key, first = 0;
 	int r = 0, g = 255, b = 0;
 	bool calib = false;
-	bool calib_m = false;
+
 	//‰~Œ`Ø‚è”²‚«‰æ‘œ
 	cv::circle(circleFrame, cv::Point(CAM_W / 2, CAM_H / 2), CAM_W / 2 - CAM_W/12, 255, -1);
 	cv::bitwise_not(circleFrame, circleFrame);

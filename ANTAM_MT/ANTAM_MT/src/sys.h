@@ -32,7 +32,9 @@
 //Dinamixel2USBのポートの設定
 #define PORT_NUM 2	//Dinamixel2USBのポートNo.
 #define BORD_NUM 34	//16		//115200bps	//34	//57600(bps)
-#define KP_GAIN 5		//比例ゲインの設定
+#define KP_GAIN 10		//比例ゲインの設定
+#define KI_GAIN 0*FPS
+#define KD_GAIN 10/FPS
 
 
 //mbedポートNUM

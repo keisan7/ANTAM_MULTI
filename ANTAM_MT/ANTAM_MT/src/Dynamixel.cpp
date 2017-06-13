@@ -4,6 +4,9 @@
 #pragma comment(lib,"dynamixel.lib")
 
 bool calib_m = false;
+double integ_error_x = 0, integ_error_y = 0;
+double diff_error_x, diff_error_y;
+double pre_error_x = CAM_W/2, pre_error_y = CAM_H/2;
 
 void init_Device() {
 	if (dxl_initialize(PORT_NUM, BORD_NUM) == 0) {
@@ -76,16 +79,23 @@ void move_rx28(int speed_x, int speed_y, int st) {
 void calc_speed(int *x, int *y, int *st) {
 	int abs_x, abs_y;
 	int error_x, error_y;
+
 	//画面中心からのずれを求める
 	error_x = pos_x - CAM_W / 2;
 	error_y = pos_y - CAM_H / 2;
 	//std::cout << "st:" << check_st() << "error_x:" << error_x << "error_y" << error_y << std::endl;
+	//PID制御の比例項、積分項、微分項を決定
 	abs_x = abs(error_x);
 	abs_y = abs(error_y);
-
-	//ずれにKP_GAINを掛けて速度を決定
-	*x = KP_GAIN * abs_x;
-	*y = KP_GAIN * abs_y;
+	integ_error_x = integ_error_x + error_x;
+	integ_error_y = integ_error_y + error_y;
+	diff_error_x = pre_error_x - error_x;
+	diff_error_y = pre_error_y - error_y;
+	//PID制御によりモータ速度の決定
+	*x = KP_GAIN * abs_x + KI_GAIN * integ_error_x + KD_GAIN*diff_error_x;
+	*y = KP_GAIN * abs_y + KI_GAIN * integ_error_y + KD_GAIN*diff_error_y;
+	pre_error_x = error_x;
+	pre_error_y = error_y;
 	//モータの速度の限界以上なら限界速度に設定
 	if (*x > 1023)
 		*x = 1023;
