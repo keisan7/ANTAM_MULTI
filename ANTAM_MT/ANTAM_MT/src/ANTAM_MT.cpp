@@ -32,6 +32,10 @@ int main() {
 	int r = 0, g = 255, b = 0;
 	bool calib = false;
 	bool calib_m = false;
+	//円形切り抜き画像
+	cv::circle(circleFrame, cv::Point(CAM_W / 2, CAM_H / 2), CAM_W / 2 - CAM_W/12, 255, -1);
+	cv::bitwise_not(circleFrame, circleFrame);
+
 	cv::VideoWriter writer;
 	//cv::VideoWriter writer(VIDEO_NAME, -1, FPS, cv::Size(CAM_W, CAM_H));
 	std::ofstream ofs;
@@ -39,23 +43,22 @@ int main() {
 	char message[64] = "";
 	//フォントの初期化
 	cvInitFont(&dfont, CV_FONT_HERSHEY_SIMPLEX, 1.0f, 1.0f, 0.0f, 2, CV_AA);
+	//画像処理用の変数
 	cv::Mat frame,
 		img(cv::Size(CAM_W, CAM_H), CV_8UC3),
 		back(cv::Size(CAM_W, CAM_H), CV_8UC1),
 		dst(cv::Size(CAM_W, CAM_H), CV_8UC1);
+	//時間計測変数
 	int64 t0, t1, t2, t3, t4, t5;
 	double end_t = 0;
 	int64 time_log;
-	cap.read(frame);
-	/////ここまでカメラに関する宣言////
 
-	//背景画像の準備
-	//frame.copyTo(img);
-	//cv::cvtColor(img, back, cv::COLOR_RGB2GRAY);
-	//imshow("back", back);
 	cv::namedWindow(WIN_NAME, CV_WINDOW_AUTOSIZE);
 	cv::createTrackbar("thresh", WIN_NAME, &THRE, 255, NULL);
 	std::thread mbed(serial_task);//mbedからの通信受付スレッド
+	
+	//処理の開始
+	cap.read(frame);
 	int64 start_t = cv::getTickCount();
 	while (1) {
 		if (check_mode() == RELEASE_MODE && first == 0) {

@@ -1,6 +1,7 @@
 extern int pos_x, pos_y;
 extern int mode;
 extern int THRE;
+extern cv::Mat circleFrame;
 extern bool mbed_flag;
 extern bool calib_m;
 extern int start_t;
