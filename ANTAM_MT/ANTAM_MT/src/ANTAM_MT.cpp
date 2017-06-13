@@ -24,8 +24,13 @@ int main() {
 	cap.set(CV_CAP_PROP_FRAME_WIDTH, CAM_W);
 	cap.set(CV_CAP_PROP_FRAME_HEIGHT, CAM_H);
 	cap.set(CV_CAP_PROP_FPS, FPS);
+
+	//dynamixelとの通信準備
+	init_Device();
+
 	int key, first = 0;
 	int r = 0, g = 255, b = 0;
+	bool calib = false;
 	cv::VideoWriter writer;
 	//cv::VideoWriter writer(VIDEO_NAME, -1, FPS, cv::Size(CAM_W, CAM_H));
 	std::ofstream ofs;
@@ -40,8 +45,6 @@ int main() {
 	int64 t0, t1, t2, t3, t4, t5;
 	double end_t = 0;
 	int64 time_log;
-	//dynamixelとの通信準備
-	init_Device();
 	cap.read(frame);
 	/////ここまでカメラに関する宣言////
 
@@ -82,8 +85,16 @@ int main() {
 		img_processing_main(&img, &back, &dst);
 		t4 = cv::getTickCount();
 		//画像処理が終わったら別スレッドでモータ制御開始
-		std::thread m_th(motor_task);			//二値化画像の出力
+		std::thread m_th(motor_task);
+		//二値化画像の出力
 		cv::imshow(WIN_NAME, dst);
+
+		//calibration
+		if (calib) {
+			cv::line(frame, cv::Point(0, CAM_H / 2), cv::Point(CAM_W, CAM_H / 2), cv::Scalar(0, 0, 255), 1, CV_AA);
+			cv::line(frame, cv::Point(CAM_W / 2, 0), cv::Point(CAM_W / 2, CAM_H), cv::Scalar(0, 0, 255), 1, CV_AA);
+		}
+
 		cv::imshow("frame", frame);
 		key = cv::waitKey(1);
 		//sキーを押されたら背景画像を更新する
@@ -97,8 +108,11 @@ int main() {
 			start_time = timeGetTime();
 			mode_releace();
 		}
+		else if (key == 0x63){
+				calib = !calib;
+		}
 		else if (key == 0x1b) {
-			//それ以外のキーを押されたらループを抜ける
+			//escキーを押されたらループを抜ける
 			m_th.join();
 			break;
 		}

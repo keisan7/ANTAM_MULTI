@@ -174,12 +174,12 @@ void serial_task() {
 	buf = new char[255];
 	int x, y;
 	int move_x = 0, move_y = 0;
-	mouse << "time[ms]" << "," << "x" << "," << "y" << std::endl;
 	serial_setup();
 	while (1) {
 		if (check_mode() == RELEASE_MODE && !rec) {
 			rec = true;
 			mouse = std::ofstream(mouse_filename);
+			mouse << "time[ms]" << "," << "x" << "," << "y" << std::endl;
 		}
 		recive_value(&x, &y, &move_x, &move_y);
 		if (check_flag())
