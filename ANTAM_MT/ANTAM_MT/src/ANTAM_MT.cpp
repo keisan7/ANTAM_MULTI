@@ -85,26 +85,23 @@ int main() {
 		//二値化画像の作成と重心の取得
 		img_processing_main(&img, &back, &dst);
 		t4 = cv::getTickCount();
-
 		//画像処理が終わったら別スレッドでモータ制御開始
 		//calib_mがtrueならモータを動かさない
 		std::thread m_th(motor_task);
-
 		//二値化画像の出力
 		cv::imshow(WIN_NAME, dst);
-
 		//calibration
 		if (calib) {
 			cv::line(frame, cv::Point(0, CAM_H / 2), cv::Point(CAM_W, CAM_H / 2), cv::Scalar(0, 0, 255), 1, CV_AA);
 			cv::line(frame, cv::Point(CAM_W / 2, 0), cv::Point(CAM_W / 2, CAM_H), cv::Scalar(0, 0, 255), 1, CV_AA);
 			putText(frame, "Calibration Mode", cv::Point(10, 40), cv::FONT_HERSHEY_PLAIN, 1.0, cvScalar(255, 0, 0), 2, CV_AA);
-			if(calib_motor(1))
+			if(calib_motor(MOTOR_STATE))
 				putText(frame, "Motor OFF", cv::Point(10, 60), cv::FONT_HERSHEY_PLAIN, 1.0, cvScalar(255, 0, 0), 2, CV_AA);
 			else
 				putText(frame, "Motor ON", cv::Point(10, 60), cv::FONT_HERSHEY_PLAIN, 1.0, cvScalar(255, 0, 0), 2, CV_AA);
 
 		}
-
+		//結果出力
 		cv::imshow("frame", frame);
 		key = cv::waitKey(1);
 		//sキーを押されたら背景画像を更新する
@@ -119,17 +116,18 @@ int main() {
 			mode_releace();
 		}
 		else if (key == 0x63){
-			//cキーを押されたらキャリブレーションモード
+			//cキーを押されたらキャリブレーションモードの切り替え
 				if(calib)
-					if (calib_motor(1)) {
-						calib_motor(0);
+					//キャリブレーションモード終了時にモータの動作がOFFならONに切り替え
+					if (calib_motor(MOTOR_STATE)) {
+						calib_motor(MOTOR_SWICH);
 					}
 				calib = !calib;
 		}
 		else if (key == 0x6d) {
-			//キャリブレーションモード中にmキーが押されたらモータを動かさない
+			//キャリブレーションモード中にmキーが押されたらモータの動作ON・OFF切り替え
 			if (calib)
-				calib_motor(0);
+				calib_motor(MOTOR_SWICH);
 		}
 		else if (key == 0x1b) {
 			//escキーを押されたらループを抜ける

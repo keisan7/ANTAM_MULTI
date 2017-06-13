@@ -24,12 +24,13 @@ void motor_task() {
 		std::cout << "Dynamixel 再接続" << std::endl;
 		init_Device();
 	}
-	if (!calib_motor(1)) {
+	//モータを動作させる
+	//モータの動作がOFFの場合は動かさない
+	if (!calib_motor(MOTOR_STATE)) {
 		calc_speed(&x, &y, &st);
 		move_rx28(x, y, st);
 	}
 	else {
-		//printf("calib////////////////////////////////////////////////////////////////////////");
 		move_rx28(0, 0, 0);
 	}
 	t = cv::getTickCount();
