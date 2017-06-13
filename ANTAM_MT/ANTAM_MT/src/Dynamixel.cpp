@@ -24,9 +24,13 @@ void motor_task() {
 		std::cout << "Dynamixel ÄÚ‘±" << std::endl;
 		init_Device();
 	}
-	if (calib_motor(1)) {
+	if (!calib_motor(1)) {
 		calc_speed(&x, &y, &st);
 		move_rx28(x, y, st);
+	}
+	else {
+		//printf("calib////////////////////////////////////////////////////////////////////////");
+		move_rx28(0, 0, 0);
 	}
 	t = cv::getTickCount();
 }
